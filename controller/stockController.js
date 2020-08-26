@@ -43,7 +43,7 @@ exports.buy = async (req, res) => {
     //todo : implement socket
     //todo: price increment and stock reuction
     const { availability, currentPrice } = await Stock.findOne({ companyName });
-    const { currentBalance, stocks } = await User.findOne({ username });
+    let { currentBalance, stocks } = await User.findOne({ username });
 
     if (stockQuantity > availability) {
       return res
@@ -81,7 +81,7 @@ exports.buy = async (req, res) => {
       stocks[stocks.length].companyName = companyName;
     }
     console.log('83', currentBalance, stockQuantity, currentPrice);
-    // currentBalance -= stockQuantity * currentPrice;
+    currentBalance -= stockQuantity * currentPrice;
     console.log('85', currentBalance, stockQuantity, currentPrice);
     await User.updateOne({ username }, { currentBalance, stocks });
 
