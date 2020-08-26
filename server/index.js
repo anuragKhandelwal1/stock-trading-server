@@ -25,6 +25,10 @@ io.on('connection', (socket) => {
   //   io.emit('message', 'Welcome to the io');
 });
 
+app.get('/', (req, res) => {
+  res.send('App loaded');
+});
+
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/stocks', stockRoutes);
 
