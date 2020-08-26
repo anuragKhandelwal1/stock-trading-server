@@ -1,0 +1,22 @@
+{
+    "name": "stock-trading-react",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon node server/index.js"
+    },
+    "author": "Anurag Khandelwal",
+    "license": "ISC",
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "mongodb": "^3.6.0",
+        "mongoose": "^5.10.0",
+        "nodemon": "^2.0.4",
+        "socket.io": "^2.3.0",
+        "validator": "^13.1.1"
+    }
+}
