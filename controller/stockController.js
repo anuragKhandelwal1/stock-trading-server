@@ -40,8 +40,7 @@ exports.add = async (req, res) => {
 exports.buy = async (req, res) => {
   try {
     const { username, companyName, stockQuantity } = req.body;
-    //todo : implement socket
-    //todo: price increment and stock reuction
+    //todo : implement socket to emit stocks and users
     const { availability, currentPrice } = await Stock.findOne({ companyName });
     let { currentBalance, stocks } = await User.findOne({ username });
 
@@ -68,9 +67,6 @@ exports.buy = async (req, res) => {
       }
     );
 
-    //todo: User currentBalance dec, worth inc
-    console.log('stocks', stocks);
-
     const stockIndex = stocks.findIndex(
       (stock) => stock.companyName === companyName
     );
@@ -80,12 +76,52 @@ exports.buy = async (req, res) => {
       stocks[stocks.length].quantity = stockQuantity;
       stocks[stocks.length].companyName = companyName;
     }
-    console.log('83', currentBalance, stockQuantity, currentPrice);
     currentBalance -= stockQuantity * currentPrice;
-    console.log('85', currentBalance, stockQuantity, currentPrice);
     await User.updateOne({ username }, { currentBalance, stocks });
 
     res.send({ message: 'Bought' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+exports.sell = async (req, res) => {
+  try {
+    const { username, companyName, stockQuantity } = req.body;
+    //todo : implement socket to emit stocks and users
+    const { availability, currentPrice } = await Stock.findOne({ companyName });
+    let { currentBalance, stocks } = await User.findOne({ username });
+
+    const stockIndex = stocks.findIndex(
+      (stock) => stock.companyName === companyName
+    );
+
+    if (stockIndex < 0 || !availability || !currentPrice) {
+      return res.status(500).send({ message: `Stock doesn't exist.` });
+    }
+    if (stocks[stockIndex].quantity < stockQuantity) {
+      return res
+        .status(400)
+        .send({ message: `You can't sell more than your available shares.` });
+    }
+
+    stocks[stockIndex].quantity -= stockQuantity;
+
+    const decrementCoefficient = stockQuantity / availability;
+    await Stock.findOneAndUpdate(
+      { companyName },
+      {
+        $set: {
+          currentPrice: currentPrice * (1 - decrementCoefficient),
+          availability: availability + stockQuantity,
+        },
+      }
+    );
+    //TODO : update user stocks
+    currentBalance += stockQuantity * currentPrice;
+    await User.updateOne({ username }, { currentBalance, stocks });
+
+    res.send({ message: 'Sold' });
   } catch (err) {
     res.status(500).send(err);
   }
